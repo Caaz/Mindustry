@@ -28,7 +28,7 @@ public class SettingsMenuDialog extends SettingsDialog{
 	private Table prefs;
 	private Table menu;
 	private boolean wasPaused;
-	
+
 	public SettingsMenuDialog(){
 		setStyle(Core.skin.get("dialog", WindowStyle.class));
 
@@ -113,6 +113,8 @@ public class SettingsMenuDialog extends SettingsDialog{
 		game.sliderPref("sensitivity", 100, 10, 300, i -> i + "%");
 		game.sliderPref("saveinterval", 90, 10, 5*120, i -> Bundles.format("setting.seconds", i));
 
+		graphics.checkPref("lockfps", false);
+		graphics.sliderPref("frames", 60, 10, 120, i -> Bundles.format("setting.frames", i));
 		graphics.checkPref("fps", false);
 		graphics.checkPref("vsync", true, b -> Gdx.graphics.setVSync(b));
 		graphics.checkPref("fullscreen", false, b -> {
@@ -157,11 +159,11 @@ public class SettingsMenuDialog extends SettingsDialog{
 	    Table table = Mathf.select(index, game, graphics, sound);
         prefs.add(table);
 	}
-	
+
 	@Override
 	public void addCloseButton(){
 		buttons().addImageTextButton("$text.menu", "icon-arrow-left", 30f, this::hide).size(230f, 64f);
-		
+
 		keyDown(key->{
 			if(key == Keys.ESCAPE || key == Keys.BACK)
 				hide();

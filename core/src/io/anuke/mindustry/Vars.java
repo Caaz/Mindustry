@@ -74,10 +74,10 @@ public class Vars{
 	public static final int saveSlots = 64;
 	//amount of drops that are left when breaking a block
 	public static final float breakDropAmount = 0.5f;
-	
+
 	//only if smoothCamera
 	public static boolean snapCamera = true;
-	
+
 	public static final int tilesize = 8;
 
 	//server port
@@ -97,7 +97,7 @@ public class Vars{
 	public static NetCommon netCommon;
 	public static NetServer netServer;
 	public static NetClient netClient;
-	
+
 	public static Player player;
 
 	public static final EntityGroup<Player> playerGroup = Entities.addGroup(Player.class).enableMapping();
