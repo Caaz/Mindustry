@@ -41,8 +41,8 @@ public class BlastType extends EnemyType {
 	
 	@Override
 	public void onDeath(Enemy enemy, boolean force){
+		if(force) explode(enemy);
 		super.onDeath(enemy, force);
-		explode(enemy);
 	}
 	
 	void explode(Enemy enemy){

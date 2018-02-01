@@ -113,7 +113,7 @@ public class Control extends Module{
 			"port", port+"",
 			"name", android || gwt ? "player" : UCore.getProperty("user.name"),
 			"servers", "",
-			"color", Color.rgba8888(playerColors[9])
+			"color", Color.rgba8888(playerColors[8])
 		);
 
 		KeyBinds.load();
@@ -212,13 +212,13 @@ public class Control extends Module{
 		ui.loadfrag.show();
 		saves.resetSave();
 		
-		Timers.run(16, ()->{
+		Timers.runTask(10, ()->{
 			logic.reset();
 			world.loadMap(map);
 			logic.play();
 		});
 		
-		Timers.run(18, ()-> ui.loadfrag.hide());
+		Timers.runTask(18, ()-> ui.loadfrag.hide());
 	}
 	
 	public boolean isHighScore(){
