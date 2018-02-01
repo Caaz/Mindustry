@@ -32,7 +32,7 @@ public class AirBlock extends Block {
 
   public void handleItem(Item item, Tile tile, Tile source){
     System.out.println("Tried to accept an item into air!");
-    tile.entity = new TileEntity();
+    if (tile.entity == null) tile.entity = new TileEntity();
     tile.entity.init(tile,true);
     tile.entity.addItem(item, 1);
     // if(tile.entity == null) return;

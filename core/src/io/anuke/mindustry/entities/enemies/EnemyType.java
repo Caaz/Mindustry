@@ -254,8 +254,8 @@ public class EnemyType {
             Block block = tile.block();
             // Right now this just gets ores at random, how about adding a drop variable in enemies?
             Array<Item> items = Item.getAllItems();
-            Item item = items.get((int)Math.floor(Math.random()*items.size));
-            int count = (int)(Math.random()*30)+10;
+            Item item = items.get((int)Math.floor(Math.random()*(items.size-1)));
+            int count = (int)(Math.random()*20)+10;
             for(int i = 0; i < count; i++) {
               block.handleItem(item, tile, tile);
             }
