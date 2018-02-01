@@ -153,7 +153,7 @@ public class Player extends SyncEntity{
 		}
 
 		if(tile.block() == Blocks.air && tile.entity != null) {
-			System.out.println("Picking up items");
+			// pick up items from air blocks!
 			for(int i = 0; i < tile.entity.items.length; i++) {
 				state.inventory.addItem(Item.getByID(i),tile.entity.items[i]);
 			}

@@ -15,6 +15,16 @@ public class AirBlock extends Block {
   //no drawing here
   public void drawCache(Tile tile){}
 
+  public void handleItem(Item item, Tile tile, Tile source){
+    if (tile.entity == null) tile.entity = new TileEntity();
+    tile.entity.init(tile,true);
+    tile.entity.addItem(item, 1);
+    // if(tile.entity == null) return;
+  }
+
+  // Don't explode kthx
+	public void onDestroyed(Tile tile){ }
+
   //update floor blocks for effects, if needed
 	@Override
   public void draw(Tile tile){
@@ -30,11 +40,4 @@ public class AirBlock extends Block {
     }
   }
 
-  public void handleItem(Item item, Tile tile, Tile source){
-    System.out.println("Tried to accept an item into air!");
-    if (tile.entity == null) tile.entity = new TileEntity();
-    tile.entity.init(tile,true);
-    tile.entity.addItem(item, 1);
-    // if(tile.entity == null) return;
-  }
 }
