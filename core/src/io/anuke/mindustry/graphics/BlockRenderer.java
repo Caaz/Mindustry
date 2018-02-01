@@ -27,24 +27,24 @@ import static io.anuke.ucore.core.Core.camera;
 public class BlockRenderer{
 	private final static int chunksize = 32;
 	private final static int initialRequests = 32*32;
-	
+
 	private int[][][] cache;
 	private CacheBatch cbatch;
-	
+
 	private Array<BlockRequest> requests = new Array<BlockRequest>(initialRequests);
 	private int requestidx = 0;
 	private int iterateidx = 0;
-	
+
 	public BlockRenderer(){
 		for(int i = 0; i < requests.size; i ++){
 			requests.set(i, new BlockRequest());
 		}
 	}
-	
+
 	private class BlockRequest implements Comparable<BlockRequest>{
 		Tile tile;
 		Layer layer;
-		
+
 		@Override
 		public int compareTo(BlockRequest other){
 			return layer.compareTo(other.layer);
@@ -55,19 +55,19 @@ public class BlockRenderer{
 			return tile.block().name + ":" + layer.toString();
 		}
 	}
-	
+
 	/**Process all blocks to draw, simultaneously drawing block shadows and static blocks.*/
 	public void processBlocks(){
 		requestidx = 0;
-		
+
 		int crangex = (int) (camera.viewportWidth / (chunksize * tilesize)) + 1;
 		int crangey = (int) (camera.viewportHeight / (chunksize * tilesize)) + 1;
-		
+
 		int rangex = (int) (camera.viewportWidth * camera.zoom / tilesize / 2)+2;
 		int rangey = (int) (camera.viewportHeight * camera.zoom / tilesize / 2)+2;
-			
+
 		int expandr = 3;
-		
+
 		Graphics.surface(renderer.shadowSurface);
 
 		for(int x = -rangex - expandr; x <= rangex + expandr; x++){
@@ -75,48 +75,49 @@ public class BlockRenderer{
 				int worldx = Mathf.scl(camera.position.x, tilesize) + x;
 				int worldy = Mathf.scl(camera.position.y, tilesize) + y;
 				boolean expanded = (x < -rangex || x > rangex || y < -rangey || y > rangey);
-				
+
 				Tile tile = world.tile(worldx, worldy);
-				
+
 				if(tile != null){
 					Block block = tile.block();
-					
+
 					if(!expanded && block != Blocks.air && world.isAccessible(worldx, worldy)){
 						block.drawShadow(tile);
 					}
-					
+
 					if(!(block instanceof StaticBlock)){
-						if(block == Blocks.air){
-							if(!state.is(State.paused)) tile.floor().update(tile);
-						}else{
-						
+						// if(block == Blocks.air){
+						// 	if(!state.is(State.paused)) tile.floor().update(tile);
+						// }else
+						// {
+
 							if(!expanded){
 								addRequest(tile, Layer.block);
 							}
-						
+
 							if(block.expanded || !expanded){
 								if(block.layer != null && block.isLayer(tile)){
 									addRequest(tile, block.layer);
 								}
-						
+
 								if(block.layer2 != null && block.isLayer2(tile)){
 									addRequest(tile, block.layer2);
 								}
 							}
 						}
-					}
+					// }
 				}
 			}
 		}
-		
+
 		Draw.color(0, 0, 0, 0.15f);
 		Graphics.flushSurface();
 		Draw.color();
-		
+
 		Graphics.end();
 		drawCache(1, crangex, crangey);
 		Graphics.begin();
-		
+
 		Arrays.sort(requests.items, 0, requestidx);
 		iterateidx = 0;
 	}
@@ -124,16 +125,16 @@ public class BlockRenderer{
 	public int getRequests(){
 		return requestidx;
 	}
-	
+
 	public void drawBlocks(boolean top){
 		Layer stopAt = top ? Layer.laser : Layer.overlay;
-		
+
 		for(; iterateidx < requestidx; iterateidx ++){
 
 			if(iterateidx < requests.size - 1 && requests.get(iterateidx).layer.ordinal() > stopAt.ordinal()){
 				break;
 			}
-			
+
 			BlockRequest req = requests.get(iterateidx);
 			Block block = req.tile.block();
 
@@ -146,7 +147,7 @@ public class BlockRenderer{
 			}
 		}
 	}
-	
+
 	private void addRequest(Tile tile, Layer layer){
 		if(requestidx >= requests.size){
 			requests.add(new BlockRequest());
@@ -159,7 +160,7 @@ public class BlockRenderer{
 		r.layer = layer;
 		requestidx ++;
 	}
-	
+
 	public void drawFloor(){
 		int chunksx = world.width() / chunksize, chunksy = world.height() / chunksize;
 
@@ -187,7 +188,7 @@ public class BlockRenderer{
 		Graphics.begin();
 
 		Draw.reset();
-		
+
 		if(showPaths && debug){
 			drawPaths();
 		}
@@ -208,7 +209,7 @@ public class BlockRenderer{
 			Draw.reset();
 		}
 	}
-	
+
 	void drawPaths(){
 		Draw.color(Color.RED);
 		for(SpawnPoint point : world.getSpawns()){
@@ -222,7 +223,7 @@ public class BlockRenderer{
 		}
 		Draw.reset();
 	}
-	
+
 
 	void drawCache(int layer, int crangex, int crangey){
 		Gdx.gl.glEnable(GL20.GL_BLEND);

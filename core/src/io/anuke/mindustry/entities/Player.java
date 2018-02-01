@@ -5,17 +5,18 @@ import io.anuke.mindustry.graphics.Fx;
 import io.anuke.mindustry.graphics.Shaders;
 import io.anuke.mindustry.net.Net;
 import io.anuke.mindustry.net.NetEvents;
+import io.anuke.mindustry.resource.Item;
 import io.anuke.mindustry.resource.Mech;
 import io.anuke.mindustry.resource.Upgrade;
 import io.anuke.mindustry.resource.Weapon;
 import io.anuke.mindustry.world.Tile;
 import io.anuke.mindustry.world.blocks.Blocks;
+import io.anuke.mindustry.world.blocks.types.AirBlock;
 import io.anuke.ucore.core.*;
 import io.anuke.ucore.entities.SolidEntity;
 import io.anuke.ucore.graphics.Draw;
 import io.anuke.ucore.util.Angles;
 import io.anuke.ucore.util.Mathf;
-
 import java.nio.ByteBuffer;
 
 import static io.anuke.mindustry.Vars.*;
@@ -39,11 +40,11 @@ public class Player extends SyncEntity{
 
 	public int clientid;
 	public boolean isLocal = false;
-	
+
 	public Player(){
 		hitbox.setSize(5);
 		hitboxTile.setSize(5f);
-		
+
 		maxhealth = 200;
 		heal();
 	}
@@ -64,7 +65,7 @@ public class Player extends SyncEntity{
 		}
 		return !isDead() && super.collides(other) && !isAndroid;
 	}
-	
+
 	@Override
 	public void onDeath(){
 		if(!isLocal) return;
@@ -95,7 +96,7 @@ public class Player extends SyncEntity{
 			interpolator.target.set(x, y);
 		});
 	}
-	
+
 	@Override
 	public void draw(){
         if(isAndroid && isLocal){
@@ -134,7 +135,7 @@ public class Player extends SyncEntity{
 
 		Graphics.flush();
 	}
-	
+
 	@Override
 	public void update(){
 		if(!isLocal || isAndroid){
@@ -151,6 +152,14 @@ public class Player extends SyncEntity{
 			stucktime = 0f;
 		}
 
+		if(tile.block() == Blocks.air && tile.entity != null) {
+			System.out.println("Picking up items");
+			for(int i = 0; i < tile.entity.items.length; i++) {
+				state.inventory.addItem(Item.getByID(i),tile.entity.items[i]);
+			}
+	    tile.entity = null;
+		}
+
 		if(stucktime > 10f){
 			damage(health+1); //die instantly
 		}
@@ -158,14 +167,14 @@ public class Player extends SyncEntity{
 		if(ui.chatfrag.chatOpen()) return;
 
 		dashing = Inputs.keyDown("dash");
-		
+
 		float speed = dashing ? (debug ? Player.dashSpeed * 5f : Player.dashSpeed) : Player.speed;
-		
+
 		if(health < maxhealth && Timers.get(this, "regen", 20))
 			health ++;
 
 		health = Mathf.clamp(health, -1, maxhealth);
-		
+
 		vector.set(0, 0);
 
 		float xa = Inputs.getAxis("move_x");
@@ -175,7 +184,7 @@ public class Player extends SyncEntity{
 
 		vector.y += ya*speed;
 		vector.x += xa*speed;
-		
+
 		boolean shooting = !Inputs.keyDown("dash") && Inputs.keyDown("shoot") && control.input().recipe == null
 				&& !ui.hasMouse() && !control.input().onConfigurable();
 
@@ -183,21 +192,21 @@ public class Player extends SyncEntity{
 			weaponLeft.update(player, true);
 			weaponRight.update(player, false);
 		}
-		
+
 		if(dashing && Timers.get(this, "dashfx", 3) && vector.len() > 0){
 			Angles.translation(angle + 180, 3f);
 			Effects.effect(Fx.dashsmoke, x + Angles.x(), y + Angles.y());
 		}
-		
+
 		vector.limit(speed);
-		
+
 		if(!noclip){
 			move(vector.x*Timers.delta(), vector.y*Timers.delta());
 		}else{
 			x += vector.x*Timers.delta();
 			y += vector.y*Timers.delta();
 		}
-		
+
 		if(!shooting){
 			if(!vector.isZero())
 				angle = Mathf.lerpAngDelta(angle, vector.angle(), 0.13f);

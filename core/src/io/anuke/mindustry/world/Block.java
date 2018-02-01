@@ -26,7 +26,7 @@ public class Block{
 	private static int lastid;
 	private static Array<Block> blocks = new Array<>();
 	private static ObjectMap<String, Block> map = new ObjectMap<>();
-	
+
 	protected static TextureRegion temp = new TextureRegion();
 
 	public Tile[] temptiles = new Tile[4];
@@ -120,24 +120,24 @@ public class Block{
 	public boolean isConfigurable(Tile tile){
 		return false;
 	}
-	
+
 	public void getStats(Array<String> list){
 		list.add("[gray]size: " + width + "x" + height);
 		list.add("[healthstats]health: " + health);
 	}
-	
+
 	public String name(){
 		return name;
 	}
-	
+
 	public boolean isSolidFor(Tile tile){
 		return false;
 	}
-	
+
 	public boolean canReplace(Block other){
 		return false;
 	}
-	
+
 	public int handleDamage(Tile tile, int amount){
 		return amount;
 	}
@@ -146,21 +146,21 @@ public class Block{
 		if(tile.entity == null) return;
 		tile.entity.addItem(item, 1);
 	}
-	
+
 	public boolean acceptItem(Item item, Tile tile, Tile source){
 		return false;
 	}
-	
+
 	public void update(Tile tile){}
-	
+
 	public void onDestroyed(Tile tile){
 		float x = tile.worldx(), y = tile.worldy();
-		
+
 		Effects.shake(4f, 4f, x, y);
 		Effects.effect(explosionEffect, x, y);
 		Effects.sound(explosionSound, x, y);
 	}
-	
+
 	public TileEntity getEntity(){
 		return new TileEntity();
 	}
@@ -171,9 +171,9 @@ public class Block{
 	protected void offloadNear(Tile tile, Item item){
 		byte i = tile.getDump();
 		byte pdump = (byte)(i % 4);
-		
+
 		Tile[] tiles = tile.getNearby(temptiles);
-		
+
 		for(int j = 0; j < 4; j ++){
 			Tile other = tiles[i];
 			if(other != null && other.block().acceptItem(item, other, tile)){
@@ -198,17 +198,17 @@ public class Block{
 	 */
 	protected boolean tryDump(Tile tile, int direction, Item todump){
 		int i = tile.getDump()%4;
-		
+
 		Tile[] tiles = tile.getNearby(temptiles);
-		
+
 		for(int j = 0; j < 4; j ++){
 			Tile other = tiles[i];
-			
+
 			if(i == direction || direction == -1){
 				for(Item item : Item.getAllItems()){
-					
+
 					if(todump != null && item != todump) continue;
-					
+
 					if(tile.entity.hasItem(item) && other != null && other.block().acceptItem(item, other, tile)){
 						other.block().handleItem(item, other, tile);
 						tile.entity.removeItem(item, 1);
@@ -235,41 +235,41 @@ public class Block{
 		}
 		return false;
 	}
-	
+
 	public void draw(Tile tile){
 		//note: multiblocks do not support rotation
 		if(!isMultiblock()){
-			Draw.rect(variants > 0 ? (name() + Mathf.randomSeed(tile.id(), 1, variants))  : name(), 
+			Draw.rect(variants > 0 ? (name() + Mathf.randomSeed(tile.id(), 1, variants))  : name(),
 					tile.worldx(), tile.worldy(), rotate ? tile.getRotation() * 90 : 0);
 		}else{
 			//if multiblock, make sure to draw even block sizes offset, since the core block is at the BOTTOM LEFT
 			Draw.rect(name(), tile.drawx(), tile.drawy());
 		}
-		
+
 		//update the tile entity through the draw method, only if it's an entity without updating
 		if(destructible && !update && !state.is(State.paused)){
 			tile.entity.update();
 		}
 	}
-	
+
 	public void drawShadow(Tile tile){
-		
+
 		if(varyShadow && variants > 0){
 			Draw.rect(shadow + (Mathf.randomSeed(tile.id(), 1, variants)), tile.worldx(), tile.worldy());
 		}else{
 			Draw.rect(shadow, tile.worldx(), tile.worldy());
 		}
 	}
-	
+
 	/**Offset for placing and drawing multiblocks.*/
 	public Vector2 getPlaceOffset(){
 		return Tmp.v3.set(((width + 1) % 2) * tilesize/2, ((height + 1) % 2) * tilesize/2);
 	}
-	
+
 	public boolean isMultiblock(){
 		return width != 1 || height != 1;
 	}
-	
+
 	public static Array<Block> getAllBlocks(){
 		return blocks;
 	}
@@ -277,7 +277,7 @@ public class Block{
 	public static Block getByName(String name){
 		return map.get(name);
 	}
-	
+
 	public static Block getByID(int id){
 		return blocks.get(id);
 	}

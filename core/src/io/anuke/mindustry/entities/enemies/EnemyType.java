@@ -20,6 +20,8 @@ import io.anuke.ucore.graphics.Draw;
 import io.anuke.ucore.util.Mathf;
 import io.anuke.ucore.util.Strings;
 import io.anuke.ucore.util.Tmp;
+import io.anuke.mindustry.resource.Item;
+import io.anuke.mindustry.world.Block;
 
 import static io.anuke.mindustry.Vars.*;
 
@@ -247,6 +249,16 @@ public class EnemyType {
             Effects.sound("bang2", enemy);
             enemy.remove();
             enemy.dead = true;
+
+            Tile tile = world.tileWorld((int)enemy.x,(int)enemy.y);
+            Block block = tile.block();
+            // Right now this just gets ores at random, how about adding a drop variable in enemies?
+            Array<Item> items = Item.getAllItems();
+            Item item = items.get((int)Math.floor(Math.random()*items.size));
+            int count = (int)(Math.random()*30)+10;
+            for(int i = 0; i < count; i++) {
+              block.handleItem(item, tile, tile);
+            }
         }
     }
 
