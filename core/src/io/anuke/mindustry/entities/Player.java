@@ -157,7 +157,7 @@ public class Player extends SyncEntity{
 			for(int i = 0; i < tile.entity.items.length; i++) {
 				state.inventory.addItem(Item.getByID(i),tile.entity.items[i]);
 			}
-	    tile.entity = null;
+	    tile.entity.onDeath();
 		}
 
 		if(stucktime > 10f){

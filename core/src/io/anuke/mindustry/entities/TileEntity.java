@@ -30,7 +30,7 @@ public class TileEntity extends Entity{
 	public float health;
 	public boolean dead = false;
 	public boolean added;
-	
+
 	/**Sets this tile entity data to this tile, and adds it if necessary.*/
 	public TileEntity init(Tile tile, boolean added){
 		this.tile = tile;
@@ -39,28 +39,28 @@ public class TileEntity extends Entity{
 		y = tile.worldy();
 
 		health = tile.block().health;
-		
+
 		timer = new Timer(tile.block().timers);
-		
+
 		if(added){
 			add();
 		}
-		
+
 		return this;
 	}
-	
+
 	public void write(DataOutputStream stream) throws IOException{
-		
+
 	}
-	
+
 	public void read(DataInputStream stream) throws IOException{
-		
+
 	}
 
 	public void readNetwork(DataInputStream stream, float elapsed) throws IOException{
 		read(stream);
 	}
-	
+
 	public void onDeath(){
 		onDeath(false);
 	}
@@ -83,14 +83,14 @@ public class TileEntity extends Entity{
 			}
 		}
 	}
-	
+
 	public void collision(Bullet other){
 		damage(other.getDamage());
 	}
-	
+
 	public void damage(int damage){
 		if(dead) return;
-		
+
 		int amount = tile.block().handleDamage(tile, damage);
 		health -= amount;
 		if(health <= 0) onDeath();
@@ -99,26 +99,26 @@ public class TileEntity extends Entity{
 			NetEvents.handleBlockDamaged(this);
 		}
 	}
-	
+
 	public boolean collide(Bullet other){
 		return other.owner instanceof Enemy || friendlyFire;
 	}
-	
+
 	@Override
 	public void update(){
 		if(health != 0 && health < tile.block().health && !(tile.block() instanceof Wall) &&
 				Mathf.chance(0.009f*Timers.delta()*(1f-health/tile.block().health))){
-			
+
 			Effects.effect(Fx.smoke, x+Mathf.range(4), y+Mathf.range(4));
 		}
-		
+
 		if(health <= 0){
 			onDeath();
 		}
-		
+
 		tile.block().update(tile);
 	}
-	
+
 	public int totalItems(){
 		int sum = 0;
 		for(int i = 0; i < items.length; i ++){
@@ -126,27 +126,27 @@ public class TileEntity extends Entity{
 		}
 		return sum;
 	}
-	
+
 	public int getItem(Item item){
 		return items[item.id];
 	}
-	
+
 	public boolean hasItem(Item item){
 		return getItem(item) > 0;
 	}
-	
+
 	public boolean hasItem(Item item, int amount){
 		return getItem(item) >= amount;
 	}
-	
+
 	public void addItem(Item item, int amount){
 		items[item.id] += amount;
 	}
-	
+
 	public void removeItem(Item item, int amount){
 		items[item.id] -= amount;
 	}
-	
+
 	@Override
 	public TileEntity add(){
 		return add(tileGroup);
