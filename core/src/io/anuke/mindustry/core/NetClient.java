@@ -17,6 +17,7 @@ import io.anuke.mindustry.net.NetworkIO;
 import io.anuke.mindustry.net.Packets.*;
 import io.anuke.mindustry.world.Map;
 import io.anuke.mindustry.world.Tile;
+import io.anuke.mindustry.world.blocks.ProductionBlocks;
 import io.anuke.ucore.core.Timers;
 import io.anuke.ucore.entities.BaseBulletType;
 import io.anuke.ucore.entities.Entities;
@@ -50,6 +51,7 @@ public class NetClient extends Module {
             gotData = false;
             kicked = false;
 
+            ui.chatfrag.clearMessages();
             ui.loadfrag.hide();
             ui.loadfrag.show("$text.connecting.data");
 
@@ -252,6 +254,10 @@ public class NetClient extends Module {
         });
 
         Net.handleClient(GameOverPacket.class, packet -> {
+            if(world.getCore().block() != ProductionBlocks.core &&
+                    world.getCore().entity != null){
+                world.getCore().entity.onDeath(true);
+            }
             kicked = true;
             ui.restart.show();
         });
@@ -287,10 +293,10 @@ public class NetClient extends Module {
     private void finishConnecting(){
         Net.send(new ConnectConfirmPacket(), SendMode.tcp);
         state.set(State.playing);
-        Net.setClientLoaded(true);
         connecting = false;
         ui.loadfrag.hide();
         ui.join.hide();
+        Net.setClientLoaded(true);
     }
 
     public void beginConnecting(){

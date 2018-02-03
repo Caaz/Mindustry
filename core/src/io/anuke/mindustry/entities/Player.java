@@ -151,7 +151,6 @@ public class Player extends SyncEntity{
 		}else{
 			stucktime = 0f;
 		}
-
 		if(tile.block() == Blocks.air && tile.entity != null) {
 			// pick up items from air blocks!
 			for(int i = 0; i < tile.entity.items.length; i++) {
@@ -159,9 +158,9 @@ public class Player extends SyncEntity{
 			}
 	    tile.entity.onDeath();
 		}
-
-		if(stucktime > 10f){
+		if(stucktime > 20f){
 			damage(health+1); //die instantly
+			stucktime = 0f;
 		}
 
 		if(ui.chatfrag.chatOpen()) return;
@@ -290,7 +289,7 @@ public class Player extends SyncEntity{
 			Effects.effect(Fx.dashsmoke, x + Angles.x(), y + Angles.y());
 		}
 
-		if(dashing && Timers.get(this, "dashfx", 3)){
+		if(dashing && !dead && Timers.get(this, "dashfx", 3)){
 			Angles.translation(angle + 180, 3f);
 			Effects.effect(Fx.dashsmoke, x + Angles.x(), y + Angles.y());
 		}

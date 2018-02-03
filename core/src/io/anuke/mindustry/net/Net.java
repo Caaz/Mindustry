@@ -1,6 +1,5 @@
 package io.anuke.mindustry.net;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -26,6 +25,7 @@ public class Net{
 	private static boolean server;
 	private static boolean active;
 	private static boolean clientLoaded;
+	private static Array<Object> packetQueue = new Array<>();
 	private static ObjectMap<Class<?>, Consumer> listeners = new ObjectMap<>();
 	private static ObjectMap<Class<?>, Consumer> clientListeners = new ObjectMap<>();
 	private static ObjectMap<Class<?>, BiConsumer<Integer, Object>> serverListeners = new ObjectMap<>();
@@ -46,6 +46,16 @@ public class Net{
 	/**Sets the client loaded status, or whether it will recieve normal packets from the server.*/
 	public static void setClientLoaded(boolean loaded){
 		clientLoaded = loaded;
+
+		if(loaded){
+			//handle all packets that were skipped while loading
+			for(int i = 0; i < packetQueue.size; i ++){
+                Log.info("Processing {0} packet post-load.", ClassReflection.getSimpleName(packetQueue.get(i).getClass()));
+				handleClientReceived(packetQueue.get(i));
+			}
+		}
+		//clear inbound packet queue
+		packetQueue.clear();
 	}
 	
 	/**Connect to an address.*/
@@ -173,10 +183,11 @@ public class Net{
 				if(clientListeners.get(object.getClass()) != null) clientListeners.get(object.getClass()).accept(object);
 				if(listeners.get(object.getClass()) != null) listeners.get(object.getClass()).accept(object);
 			}else{
-				Log.info("Recieved {0}, but ignoring data, as client is not loaded.", ClassReflection.getSimpleName(object.getClass()));
+				packetQueue.add(object);
+				Log.info("Queuing packet {0}.", ClassReflection.getSimpleName(object.getClass()));
 			}
 		}else{
-			Gdx.app.error("Mindustry::Net", "Unhandled packet type: '" + object.getClass() + "'!");
+			Log.err("Unhandled packet type: '{0}'!", ClassReflection.getSimpleName(object.getClass()));
 		}
 	}
 
@@ -188,7 +199,7 @@ public class Net{
 			if(serverListeners.get(object.getClass()) != null) serverListeners.get(object.getClass()).accept(connection, object);
 			if(listeners.get(object.getClass()) != null) listeners.get(object.getClass()).accept(object);
 		}else{
-			Gdx.app.error("Mindustry::Net", "Unhandled packet type: '" + object.getClass() + "'!");
+			Log.err("Unhandled packet type: '{0}'!", ClassReflection.getSimpleName(object.getClass()));
 		}
 	}
 
